@@ -1,13 +1,30 @@
 const express = require('express');
 const router = express.Router();
 
-const db = require('../database/connection');
+const {getAllUsers, getUserById} = require('../database/queries/user-queries');
 
 // GET /api/users
 router.get('/', (req, res) => {
-  db.query('SELECT * FROM users;')
-    .then((response) => {
-      res.json(response.rows);
+  getAllUsers()
+    .then((users) => {
+      res.json(users);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+});
+
+// GET /api/users/:id
+router.get('/:id', (req, res) => {
+  const id = req.params.id;
+
+  getUserById(id)
+    .then((users) => {
+      if (!users.length) {
+        return res.send('no user with that id found');
+      }
+
+      res.json(users[0]);
     })
     .catch((err) => {
       res.status(500).json(err);
